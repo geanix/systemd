@@ -738,6 +738,7 @@ if not meson.is_cross_build()
                 endif
         endif
 endif
+
 if nobody_user != nobody_group and not (nobody_user == 'nobody' and nobody_group == 'nogroup')
         warning('\n' +
                 'The configured user name "@0@" and group name "@0@" of the nobody user/group are not equivalent.\n'.format(nobody_user, nobody_group) +
