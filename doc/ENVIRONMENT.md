@@ -44,6 +44,11 @@ All tools:
 * `$SYSTEMD_MEMPOOL=0` — if set the internal memory caching logic employed by
   hash tables is turned off, and libc malloc() is used for all allocations.
 
+* `$SYSTEMD_BUS_TIMEOUT=SECS` — specifies the maximum time to wait for method call
+  completion. If no time unit is specified, assumes seconds. The usual other units
+  are understood, too (us, ms, s, min, h, d, w, month, y). If it is not set or set
+  to 0, then the built-in default is used.
+
 systemctl:
 
 * `$SYSTEMCTL_FORCE_BUS=1` — if set, do not connect to PID1's private D-Bus
