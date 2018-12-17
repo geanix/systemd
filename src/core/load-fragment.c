@@ -4298,8 +4298,10 @@ static int load_from_path(Unit *u, const char *path) {
                          */
                         if (r == -EACCES)
                                 log_debug_errno(r, "Cannot access \"%s\": %m", filename);
-                        else if (!IN_SET(r, -ENOENT, -ENOTDIR))
+                        else if (!IN_SET(r, -ENOENT, -ENOTDIR)) {
+                                filename = mfree(filename);
                                 return r;
+                        }
 
                         filename = mfree(filename);
                         /* Empty the symlink names for the next run */
