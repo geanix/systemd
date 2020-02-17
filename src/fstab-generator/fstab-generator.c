@@ -41,6 +41,7 @@ typedef enum MountpointFlags {
 static const char *arg_dest = "/tmp";
 static const char *arg_dest_late = "/tmp";
 static bool arg_fstab_enabled = true;
+static char *arg_fstab_path = NULL;
 static char *arg_root_what = NULL;
 static char *arg_root_fstype = NULL;
 static char *arg_root_options = NULL;
@@ -507,7 +508,10 @@ static int parse_fstab(bool initrd) {
         struct mntent *me;
         int r = 0;
 
-        fstab_path = initrd ? "/sysroot/etc/fstab" : "/etc/fstab";
+        if(arg_fstab_path)
+                fstab_path = arg_fstab_path;
+        else
+                fstab_path = initrd ? "/sysroot/etc/fstab" : "/etc/fstab";
         f = setmntent(fstab_path, "re");
         if (!f) {
                 if (errno == ENOENT)
@@ -758,9 +762,15 @@ static int parse_proc_cmdline_item(const char *key, const char *value, void *dat
         if (STR_IN_SET(key, "fstab", "rd.fstab")) {
 
                 r = value ? parse_boolean(value) : 1;
-                if (r < 0)
+                if (r < 0) {
+                        r = 0;
                         log_warning("Failed to parse fstab switch %s. Ignoring.", value);
-                else
+                        if (proc_cmdline_value_missing(key, value))
+                                return 0;
+
+                        if (free_and_strdup(&arg_fstab_path, value) < 0)
+                                 return log_oom();
+                } else
                         arg_fstab_enabled = r;
 
         } else if (streq(key, "root")) {
@@ -920,6 +930,7 @@ int main(int argc, char *argv[]) {
                 }
         }
 
+        free(arg_fstab_path);
         free(arg_root_what);
         free(arg_root_fstype);
         free(arg_root_options);
